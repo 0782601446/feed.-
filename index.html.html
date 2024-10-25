@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><br>Feed Supplement Prediction<br></title>
+    <style>
+        /* General body styling with agricultural background image */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('victorien.jpg') no-repeat center center fixed; /* Update with your agricultural image */
+            background-size: cover;
+            height: 100vh;
+        }
+
+        /* Centered container for the form and result */
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: rgba(241, 252, 252, 0.8); /* Adjust transparency here (0.8 is slightly transparent) */
+            box-shadow: 0 4px 8px rgba(30, 202, 21, 0.2); /* Slightly darker shadow for better contrast */
+            border-radius: 8px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #b3cdb567;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        /* Form layout */
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #9598c2;
+        }
+
+        input, select {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #157da3;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        input:focus, select:focus {
+            border-color: #66afe9;
+            outline: none;
+        }
+
+        button {
+            padding: 12px;
+            background-color: #28a745;
+            color: rgb(221, 228, 228);
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        /* Styling for the result display */
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: rgba(134, 222, 234, 0.479); /* Adjust transparency for result display */
+            border-left: 4px solid #28a745;
+            font-size: 18px;
+            line-height: 1.6;
+            color: #c16d1f;
+        }
+
+        .result p {
+            margin: 10px 0;
+        }
+
+        /* Media queries for responsiveness */
+        @media (max-width: 600px) {
+            .container {
+                margin: 20px;
+                padding: 15px;
+            }
+
+            button {
+                font-size: 14px;
+            }
+
+            input, select {
+                font-size: 14px;
+            }
+
+            .result {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Feed Supplement Prediction</h1>
+
+        <!-- Form to input the animal type and feed supplement quantities -->
+        <form id="predictionForm">
+            <label for="animal">Animal Type:</label>
+            <select id="animal" name="animal" required>
+                <option value="chicken">Chicken</option>
+                <option value="cow">Cow</option>
+                <option value="goat">Goat</option>
+                <option value="rabbit">Rabbit</option>
+                <option value="pig">Pig</option>
+            </select>
+
+            <label for="corn">Corn (kg):</label>
+            <input type="number" id="corn" name="corn" step="0.1" min="0" placeholder="Enter amount in kg" required>
+
+            <label for="soybean">Soybean Meal (kg):</label>
+            <input type="number" id="soybean" name="soybean" step="0.1" min="0" placeholder="Enter amount in kg" required>
+
+            <label for="wheat">Wheat (kg):</label>
+            <input type="number" id="wheat" name="wheat" step="0.1" min="0" placeholder="Enter amount in kg" required>
+
+            <button type="button" onclick="predictFeedSuitability()">Predict Suitability</button>
+        </form>
+
+        <!-- Display results -->
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        // Function to predict feed suitability based on the inputs
+        function predictFeedSuitability() {
+            // Get input values
+            const animal = document.getElementById('animal').value;
+            const corn = parseFloat(document.getElementById('corn').value);
+            const soybean = parseFloat(document.getElementById('soybean').value);
+            const wheat = parseFloat(document.getElementById('wheat').value);
+
+            // Mock feed supplement data (Nutritional information per kg)
+            const feeds = {
+                "corn": { "protein": 9.4, "fat": 4.6, "carbs": 73.4, "fiber": 1.5 },
+                "soybean_meal": { "protein": 44.0, "fat": 1.5, "carbs": 34.0, "fiber": 6.0 },
+                "wheat": { "protein": 13.0, "fat": 1.5, "carbs": 71.2, "fiber": 1.2 }
+            };
+
+            // Animal nutritional requirements
+            const animals = {
+                "chicken": { "protein": 20, "fat": 5, "carbs": 50, "fiber": 4 },
+                "cow": { "protein": 150, "fat": 50, "carbs": 200, "fiber": 30 },
+                "goat": { "protein": 60, "fat": 10, "carbs": 100, "fiber": 15 },
+                "rabbit": { "protein": 17, "fat": 5, "carbs": 45, "fiber": 12 },
+                "pig": { "protein": 100, "fat": 35, "carbs": 150, "fiber": 20 }
+            };
+
+            // Calculate total nutrients from the input quantities
+            const totalNutrients = {
+                protein: corn * feeds.corn.protein + soybean * feeds.soybean_meal.protein + wheat * feeds.wheat.protein,
+                fat: corn * feeds.corn.fat + soybean * feeds.soybean_meal.fat + wheat * feeds.wheat.fat,
+                carbs: corn * feeds.corn.carbs + soybean * feeds.soybean_meal.carbs + wheat * feeds.wheat.carbs,
+                fiber: corn * feeds.corn.fiber + soybean * feeds.soybean_meal.fiber + wheat * feeds.wheat.fiber
+            };
+
+            // Get the animal's nutritional needs
+            const needs = animals[animal];
+
+            // Calculate suitability score (How well the feed matches the animal's needs)
+            const suitabilityScore = (
+                (totalNutrients.protein / needs.protein) * 25 +
+                (totalNutrients.fat / needs.fat) * 25 +
+                (totalNutrients.carbs / needs.carbs) * 25 +
+                (totalNutrients.fiber / needs.fiber) * 25
+            );
+
+            // Display the result (Suitability as a percentage)
+            document.getElementById('result').innerHTML = `
+                <p>Predicted Suitability for <strong>${animal}</strong>: ${Math.min(suitabilityScore, 100).toFixed(2)}%</p>
+                <p><strong>Total Nutrients:</strong></p>
+                <p>Protein: ${totalNutrients.protein.toFixed(2)}g</p>
+                <p>Fat: ${totalNutrients.fat.toFixed(2)}g</p>
+                <p>Carbohydrates: ${totalNutrients.carbs.toFixed(2)}g</p>
+                <p>Fiber: ${totalNutrients.fiber.toFixed(2)}g</p>
+            `;
+        }
+    </script>
+</body>
+</html>
